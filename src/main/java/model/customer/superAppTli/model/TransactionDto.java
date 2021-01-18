@@ -1,4 +1,4 @@
-package main.java.model.customer.superAppTli;
+package main.java.model.customer.superAppTli.model;
 
 import java.util.Date;
 

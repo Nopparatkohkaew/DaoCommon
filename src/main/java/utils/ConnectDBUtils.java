@@ -13,7 +13,45 @@ public class ConnectDBUtils {
     try {
       File fileEncrypted = new File(Contains.pathConfigLinux);
       File EncryptKey = new File(Contains.pathKeyLinux);
-      DBConnectionFile fileDB = new DBConnectionFile(fileEncrypted, EncryptKey, dataBase);
+      conn = getConnection(dataBase, fileEncrypted, EncryptKey);
+      //          	conn = SecuredConnect.createConnection(dataBase);
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw e;
+    }
+    return conn;
+  }
+
+  public static Connection getConnectionByType(String type, String database) throws Exception {
+    File fileEncrypted = null;
+    File encryptKey = null;
+    try {
+      switch (type) {
+        case "mac":
+          fileEncrypted = new File(Contains.pathConfigMac);
+          encryptKey = new File(Contains.pathKeyMac);
+          break;
+        case "window":
+          fileEncrypted = new File(Contains.pathWindowConfig);
+          encryptKey = new File(Contains.pathWindowKey);
+          break;
+        default:
+          fileEncrypted = new File(Contains.pathConfigLinux);
+          encryptKey = new File(Contains.pathKeyLinux);
+          break;
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw e;
+    }
+    return getConnection(database, fileEncrypted, encryptKey);
+  }
+
+  private static Connection getConnection(String database, File fileEncrypted, File encryptKey)
+      throws ClassNotFoundException, SQLException {
+    Connection conn;
+    try {
+      DBConnectionFile fileDB = new DBConnectionFile(fileEncrypted, encryptKey, database);
       ConnectionBean con = fileDB.getConnectionBean();
       String password = con.getPassword();
       String user = con.getUserName();
@@ -28,7 +66,6 @@ public class ConnectDBUtils {
       if (con.getVendor().equals("postgresql")) Class.forName("org.postgresql.Driver");
       else Class.forName("com.mysql.jdbc.Driver");
       conn = DriverManager.getConnection(url, user, password);
-      //          	conn = SecuredConnect.createConnection(dataBase);
     } catch (Exception e) {
       e.printStackTrace();
       throw e;
@@ -79,7 +116,7 @@ public class ConnectDBUtils {
 
   public static int updateResultSet(String query, Object[] param, Connection con) throws Exception {
     try {
-      try(PreparedStatement st = con.prepareStatement(query)){
+      try (PreparedStatement st = con.prepareStatement(query)) {
         for (int i = 0; i < param.length; i++) {
           System.out.printf("index => %s | param => %s%n", i + 1, param[i]);
           st.setObject(i + 1, param[i]);
@@ -94,9 +131,10 @@ public class ConnectDBUtils {
     }
   }
 
-  public static ResultSet insertResultSet(String query, Object[] param, Connection con) throws Exception {
+  public static ResultSet insertResultSet(String query, Object[] param, Connection con)
+      throws Exception {
     try {
-      try(PreparedStatement st = con.prepareStatement(query,Statement.RETURN_GENERATED_KEYS)){
+      try (PreparedStatement st = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
         for (int i = 0; i < param.length; i++) {
           System.out.printf("index => %s | param => %s%n", i + 1, param[i]);
           st.setObject(i + 1, param[i]);
@@ -114,6 +152,7 @@ public class ConnectDBUtils {
 
   public static void main(String[] args) throws Exception {
     Connection con = ConnectDBUtils.getConnection(Contains.customer);
+//    Connection con = ConnectDBUtils.getConnectionByType(Contains.TYPE_MAC, Contains.customer);
     System.out.println("con.isClosed() = " + con.isClosed());
     con.close();
   }

@@ -1,12 +1,10 @@
 package main.java.dao.customer.superAppTli;
 
-import main.java.model.customer.superAppTli.TransactionDto;
+import main.java.model.customer.superAppTli.model.TransactionDto;
 import main.java.utils.ConnectDBUtils;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 
 public class TransactionTypeDao {
   public Long findIdByTransactionType(String type) throws Exception {
